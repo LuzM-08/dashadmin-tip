@@ -18,6 +18,16 @@ services:
       timeout: 5s
       retries: 10
 
+
+  # Servicio de correo electrónico para pruebas y desarrollo
+  mailpit:
+    image: axllent/mailpit
+    container_name: ap_mailpit
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # bandeja web
+    restart: always
+
   # Servidor Backend en Node.js 
   app-node:
     build: ./backend
@@ -31,6 +41,11 @@ services:
       - JWT_SECRET=ap_dashboard_secreto_corporativo_2026
       - JWT_EXPIRES_IN=8h
       - CORS_ORIGIN=http://localhost:5173
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - APP_URL=http://localhost:5173
+      - SCHEDULER_TZ=America/Santiago
+      - TZ=America/Santiago
     volumes:
       - ./backend:/app                  # Sincroniza el código en tiempo real
       - ./backend/uploads:/app/uploads  # Mantiene persistentes los documentos subidos
@@ -38,6 +53,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
+      mailpit:
+        condition: service_started
 volumes:
   pgdata:

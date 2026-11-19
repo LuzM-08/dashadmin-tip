@@ -2,6 +2,8 @@ const { Router } = require('express');
 const createAuthRoutes = require('./auth.routes');
 const createTareaRoutes = require('./tarea.routes');
 const createModuloRoutes = require('./modulo.routes');
+const createRecordatorioRoutes = require('./recordatorio.routes');
+const createAlertaRoutes = require('./alerta.routes');
 
 module.exports = (container) => {
   const router = Router();
@@ -10,6 +12,8 @@ module.exports = (container) => {
   router.use('/auth', createAuthRoutes(deps));
   router.use('/tareas', createTareaRoutes(deps));
   router.use('/modulos', createModuloRoutes(deps));
+  router.use('/eventos', createRecordatorioRoutes(deps));
+  router.use('/alertas', createAlertaRoutes(deps));
 
   return router;
 };

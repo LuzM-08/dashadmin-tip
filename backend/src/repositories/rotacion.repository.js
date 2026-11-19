@@ -50,6 +50,25 @@ class RotacionRepository {
     });
   }
 
+  // ---- Alertas y calendario ----
+  // Rotaciones sin alertar que ya comenzaron o comienzan antes de `hasta`, y que aún no terminan.
+  findParaAlerta(hasta, ahora, limit) {
+    return this.prisma.rotacionSemanal.findMany({
+      where: { alerta_enviada: false, fecha_inicio: { lte: hasta }, fecha_fin: { gte: ahora } },
+      orderBy: { fecha_inicio: 'asc' },
+      take: limit,
+      include,
+    });
+  }
+
+  findPorResponsable({ idUsuario, desde, hasta }) {
+    return this.prisma.rotacionSemanal.findMany({
+      where: { id_responsable: idUsuario, fecha_inicio: { lte: hasta }, fecha_fin: { gte: desde } },
+      orderBy: { fecha_inicio: 'asc' },
+      include,
+    });
+  }
+
   create(data) {
     return this.prisma.rotacionSemanal.create({ data, include });
   }
