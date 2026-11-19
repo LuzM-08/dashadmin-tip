@@ -4,6 +4,7 @@ const createTareaRoutes = require('./tarea.routes');
 const createModuloRoutes = require('./modulo.routes');
 const createRecordatorioRoutes = require('./recordatorio.routes');
 const createAlertaRoutes = require('./alerta.routes');
+const createDocumentoRoutes = require('./documento.routes');
 
 module.exports = (container) => {
   const router = Router();
@@ -14,6 +15,7 @@ module.exports = (container) => {
   router.use('/modulos', createModuloRoutes(deps));
   router.use('/eventos', createRecordatorioRoutes(deps));
   router.use('/alertas', createAlertaRoutes(deps));
+  router.use('/documentos', createDocumentoRoutes(deps));
 
   return router;
 };

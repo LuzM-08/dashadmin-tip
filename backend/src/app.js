@@ -9,7 +9,8 @@ module.exports = (container) => {
   const app = express();
 
   app.use(helmet());
-  app.use(cors({ origin: config.corsOrigin }));
+  // Content-Disposition se expone para que el frontend pueda leer el nombre del archivo al descargar.
+  app.use(cors({ origin: config.corsOrigin, exposedHeaders: ['Content-Disposition'] }));
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/health', (req, res) => res.json({ status: 'ok' }));

@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 
 if (!process.env.JWT_SECRET) {
   throw new Error('Falta la variable de entorno JWT_SECRET');
@@ -18,6 +19,11 @@ module.exports = {
   corsOrigin: process.env.CORS_ORIGIN || '*',
   appUrl: process.env.APP_URL || 'http://localhost:5173',
   timezone: process.env.SCHEDULER_TZ || process.env.TZ || 'America/Santiago',
+
+  uploads: {
+    dir: path.resolve(process.env.UPLOADS_DIR || path.join(process.cwd(), 'uploads')),
+    maxBytes: numero(process.env.MAX_UPLOAD_MB, 15) * 1024 * 1024,
+  },
 
   smtp: {
     host: process.env.SMTP_HOST || 'localhost',
