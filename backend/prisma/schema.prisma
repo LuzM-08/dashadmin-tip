@@ -1,0 +1,139 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Rol {
+  id_rol        Int          @id @default(autoincrement())
+  nombre_rol    String       @unique // Ej: "jefatura", "analista_ap", "visor"
+  descripcion   String?
+  usuarios      Usuario[]
+  permisos_rol  PermisoRol[]
+}
+
+model Permiso {
+  id_permiso     Int          @id @default(autoincrement())
+  codigo_permiso String       @unique // Ej: "tareas:crear", "modulos:rotar", "documentos:subir"
+  descripcion    String?
+  permisos_rol   PermisoRol[]
+}
+
+model PermisoRol {
+  id_rol     Int
+  id_permiso Int
+  rol        Rol     @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade)
+  permiso    Permiso @relation(fields: [id_permiso], references: [id_permiso], onDelete: Cascade)
+
+  @@id([id_rol, id_permiso])
+}
+
+model Usuario {
+  id_usuario       Int                    @id @default(autoincrement())
+  id_rol           Int
+  rol              Rol                    @relation(fields: [id_rol], references: [id_rol])
+  nombre           String
+  email            String                 @unique
+  password         String                 // Hash seguro para autenticación JWT
+  activo           Boolean                @default(true)
+  fecha_creacion   DateTime               @default(now())
+
+  asignaciones_sem RotacionSemanal[]
+  tareas_creadas   Tarea[]                @relation("TareasCreadas")
+  tareas_asignadas Tarea[]                @relation("TareasAsignadas")
+  documentos_subidos Documento[]
+  recordatorios    RecordatorioEvento[]
+  logs_auditoria   LogAuditoria[]
+}
+
+model Modulo {
+  id_modulo          Int                @id @default(autoincrement())
+  codigo_modulo      String             @unique // PRIORIDAD, PROVEEDORES, FRANQUICIAS, CORPORATIVO, FACTURAS_GENERALES
+  nombre_modulo      String             // Prioridad, Proveedores, Franquicias, Corporativo, Facturas Generales
+  descripcion        String?
+  activo             Boolean            @default(true)
+  orden_visual       Int                @default(0)
+
+  rotaciones_semanales RotacionSemanal[]
+  tareas             Tarea[]
+  documentos         Documento[]
+}
+
+model RotacionSemanal {
+  id_rotacion     Int      @id @default(autoincrement())
+  id_modulo       Int
+  modulo          Modulo   @relation(fields: [id_modulo], references: [id_modulo], onDelete: Cascade)
+  id_responsable  Int
+  responsable     Usuario  @relation(fields: [id_responsable], references: [id_usuario])
+  fecha_inicio    DateTime // Ej: inicio de semana (lunes)
+  fecha_fin       DateTime // Ej: fin de semana (domingo)
+  alerta_enviada  Boolean  @default(false)
+  fecha_registro  DateTime @default(now())
+
+  @@index([id_modulo, fecha_inicio, fecha_fin])
+}
+
+model Tarea {
+  id_tarea          Int         @id @default(autoincrement())
+  id_modulo         Int
+  modulo            Modulo      @relation(fields: [id_modulo], references: [id_modulo], onDelete: Cascade)
+  titulo            String
+  descripcion       String?
+  estado            String      @default("Sin iniciar") // "Sin iniciar", "En progreso", "Terminadas"
+  prioridad         String      @default("Media")       // "Baja", "Media", "Alta", "Critica"
+  fecha_limite      DateTime?
+  alerta_enviada    Boolean     @default(false)
+  id_creador        Int
+  creador           Usuario     @relation("TareasCreadas", fields: [id_creador], references: [id_usuario])
+  id_asignado       Int?
+  asignado          Usuario?    @relation("TareasAsignadas", fields: [id_asignado], references: [id_usuario])
+  fecha_creacion    DateTime    @default(now())
+  fecha_actualizacion DateTime  @updatedAt
+
+  documentos        Documento[]
+  recordatorios     RecordatorioEvento[]
+}
+
+model Documento {
+  id_documento    Int      @id @default(autoincrement())
+  id_modulo       Int
+  modulo          Modulo   @relation(fields: [id_modulo], references: [id_modulo], onDelete: Cascade)
+  id_tarea        Int?
+  tarea           Tarea?   @relation(fields: [id_tarea], references: [id_tarea], onDelete: SetNull)
+  id_subido_por   Int
+  subido_por      Usuario  @relation(fields: [id_subido_por], references: [id_usuario])
+  nombre_original String
+  nombre_almacenado String @unique
+  ruta_archivo    String   // Ruta en volumen local (ej: /app/uploads/...)
+  tipo_mime       String?
+  tamano_bytes    Int?
+  fecha_subida    DateTime @default(now())
+}
+
+model RecordatorioEvento {
+  id_recordatorio Int      @id @default(autoincrement())
+  id_usuario      Int
+  usuario         Usuario  @relation(fields: [id_usuario], references: [id_usuario], onDelete: Cascade)
+  id_tarea        Int?
+  tarea           Tarea?   @relation(fields: [id_tarea], references: [id_tarea], onDelete: SetNull)
+  titulo          String
+  descripcion     String?
+  fecha_evento    DateTime
+  enviar_correo   Boolean  @default(true)
+  correo_enviado  Boolean  @default(false)
+  fecha_creacion  DateTime @default(now())
+}
+
+model LogAuditoria {
+  id_log     Int      @id @default(autoincrement())
+  id_usuario Int?
+  usuario    Usuario? @relation(fields: [id_usuario], references: [id_usuario], onDelete: SetNull)
+  accion     String   // Ej: "TAREA_CREADA", "ROTACION_MODULO", "DOCUMENTO_SUBIDO"
+  entidad    String   // Ej: "Tarea", "RotacionSemanal", "Documento"
+  id_entidad Int?
+  detalles   String?
+  fecha_hora DateTime @default(now())
+}

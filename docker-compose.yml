@@ -1,0 +1,43 @@
+services:
+  # Base de datos relacional PostgreSQL para Cuentas por Pagar
+  postgres:
+    image: postgres:15-alpine
+    container_name: dashboard_ap_db
+    environment:
+      POSTGRES_USER: admin_ap
+      POSTGRES_PASSWORD: ap_password2026
+      POSTGRES_DB: cuentas_por_pagar_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin_ap -d cuentas_por_pagar_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Servidor Backend en Node.js 
+  app-node:
+    build: ./backend
+    container_name: ap_dashboard
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - DATABASE_URL=postgresql://admin_ap:ap_password2026@postgres:5432/cuentas_por_pagar_db?schema=public
+      - PORT=4000
+      - JWT_SECRET=ap_dashboard_secreto_corporativo_2026
+      - JWT_EXPIRES_IN=8h
+      - CORS_ORIGIN=http://localhost:5173
+    volumes:
+      - ./backend:/app                  # Sincroniza el código en tiempo real
+      - ./backend/uploads:/app/uploads  # Mantiene persistentes los documentos subidos
+      - /app/node_modules               # Aisla los módulos de Node del contenedor
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:
