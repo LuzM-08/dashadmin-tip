@@ -19,5 +19,8 @@ class ForbiddenError extends AppError {
 class NotFoundError extends AppError {
   constructor(message = 'Recurso no encontrado') { super(message, 404, 'NOT_FOUND'); }
 }
+class ConflictError extends AppError {
+  constructor(message = 'Conflicto con el estado actual del recurso', details) { super(message, 409, 'CONFLICT', details); }
+}
 
-module.exports = { AppError, BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError };
+module.exports = { AppError, BadRequestError, UnauthorizedError, ForbiddenError, NotFoundError, ConflictError };

@@ -15,6 +15,25 @@ class UsuarioRepository {
     });
   }
 
+  // Perfil con rol y permisos, sin password. Para validar reglas de negocio.
+  findPerfilById(id) {
+    return this.prisma.usuario.findUnique({
+      where: { id_usuario: id },
+      select: {
+        id_usuario: true,
+        nombre: true,
+        email: true,
+        activo: true,
+        rol: {
+          select: {
+            nombre_rol: true,
+            permisos_rol: { select: { permiso: { select: { codigo_permiso: true } } } },
+          },
+        },
+      },
+    });
+  }
+
   // Incluye el hash: SOLO para uso interno del login.
   findByEmailConPermisos(email) {
     return this.prisma.usuario.findUnique({ where: { email }, include: conPermisos });
