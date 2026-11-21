@@ -1,6 +1,6 @@
 <div align="center">
 
-# Dashboard Administrativo - Cuentas por Pagar
+# Proyecto: Dashboard Administrativo - Cuentas por Pagar
 
 **Documentación, acceso y rastreabilidad**
 
@@ -13,7 +13,7 @@
 
 ## Introducción
 
-**Dashboard administrativo** diseñado para responder a las necesidades de documentación, acceso y rastreabilidad que se presentan en el equipo de Cuentas por Pagar del departamento de Finanzas.
+**Dashboard administrativo V2** diseñado como una segunda versión del producto que responde a las necesidades de documentación, acceso y rastreabilidad que se presentan en el equipo de Cuentas por Pagar del departamento de Finanzas.
 
 El proyecto permite centralizar tareas, documentos, recordatorios y permisos dentro de una experiencia administrativa clara y organizada.
 
@@ -30,7 +30,7 @@ El proyecto implementa una arquitectura **Single Page Application (SPA)**. La ap
 
 ## Esquema de datos
 
-El esquema se encuentra organizado en dos grandes grupos: seguridad y acceso, y operaciones de Cuentas por Pagar.
+El esquema para este proyecto en específico se encuentra organizado en dos grandes grupos: seguridad y acceso, y operaciones de Cuentas por Pagar.
 
 ```text
 db_cuentas_por_pagar (PostgreSQL 15)

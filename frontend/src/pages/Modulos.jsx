@@ -1,5 +1,8 @@
-import PaginaPendiente from '../components/PaginaPendiente.jsx';
+import { useParams } from 'react-router-dom';
+import ListaModulos from './modulos/ListaModulos.jsx';
+import DetalleModulo from './modulos/DetalleModulo.jsx';
 
 export default function Modulos() {
-  return <PaginaPendiente titulo="Módulos" descripcion="Detalle de cada módulo: responsable, rotación semanal, tareas y documentos." />;
+  const { id } = useParams();
+  return id ? <DetalleModulo key={id} id={id} /> : <ListaModulos />;
 }

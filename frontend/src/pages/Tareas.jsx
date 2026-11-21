@@ -9,7 +9,7 @@ import { ORDENES } from '../constants/tareas.js';
 import FiltrosTareas from './tareas/FiltrosTareas.jsx';
 import TablaTareas from './tareas/TablaTareas.jsx';
 import FormularioTarea from './tareas/FormularioTarea.jsx';
-import Paginacion from './tareas/Paginacion.jsx';
+import Paginacion from '../components/Paginacion.jsx';
 
 const POR_PAGINA = 20;
 

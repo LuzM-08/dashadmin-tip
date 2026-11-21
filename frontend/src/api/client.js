@@ -1,4 +1,6 @@
 // Cliente HTTP único de la SPA: agrega el token, normaliza errores y avisa cuando la sesión expira.
+import { nombreDesdeCabecera } from '../utils/archivos.js';
+
 export const TOKEN_KEY = 'ap_token';
 const BASE = (import.meta.env.VITE_API_URL || 'http://localhost:4000/api').replace(/\/$/, '');
 
@@ -62,7 +64,29 @@ async function solicitar(metodo, ruta, { cuerpo, consulta, omitirAutenticacion =
   return json;
 }
 
+// Descarga un archivo enviando el token (un <a href> normal no puede). Devuelve { blob, nombre }.
+async function solicitarBlob(ruta, { consulta } = {}) {
+  const headers = {};
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) headers.Authorization = `Bearer ${token}`;
+
+  let respuesta;
+  try {
+    respuesta = await fetch(`${BASE}${ruta}${armarQuery(consulta)}`, { headers });
+  } catch {
+    throw new ApiError('No se pudo conectar con el servidor. Revisa tu conexión.', 0, 'NETWORK');
+  }
+
+  if (!respuesta.ok) {
+    if (respuesta.status === 401) manejadorNoAutorizado?.();
+    const json = await respuesta.json().catch(() => null);
+    throw new ApiError(json?.error?.message || `Error ${respuesta.status}`, respuesta.status, json?.error?.code);
+  }
+  return { blob: await respuesta.blob(), nombre: nombreDesdeCabecera(respuesta.headers.get('Content-Disposition')) };
+}
+
 export const api = {
+  blob: (ruta, opciones) => solicitarBlob(ruta, opciones),
   get: (ruta, opciones) => solicitar('GET', ruta, opciones),
   post: (ruta, cuerpo, opciones) => solicitar('POST', ruta, { ...opciones, cuerpo }),
   patch: (ruta, cuerpo, opciones) => solicitar('PATCH', ruta, { ...opciones, cuerpo }),
