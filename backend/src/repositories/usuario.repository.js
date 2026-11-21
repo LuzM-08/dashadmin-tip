@@ -15,6 +15,24 @@ class UsuarioRepository {
     });
   }
 
+  // Usuarios activos con su rol y permisos (para selectores). Sin password ni email.
+  listarActivos() {
+    return this.prisma.usuario.findMany({
+      where: { activo: true },
+      orderBy: { nombre: 'asc' },
+      select: {
+        id_usuario: true,
+        nombre: true,
+        rol: {
+          select: {
+            nombre_rol: true,
+            permisos_rol: { select: { permiso: { select: { codigo_permiso: true } } } },
+          },
+        },
+      },
+    });
+  }
+
   // Perfil con rol y permisos, sin password. Para validar reglas de negocio.
   findPerfilById(id) {
     return this.prisma.usuario.findUnique({

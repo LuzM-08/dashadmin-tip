@@ -1,8 +1,10 @@
 const { NotFoundError, BadRequestError } = require('../lib/errors');
 const { ESTADOS_TAREA, ESTADO_FINAL } = require('../constants/tarea.constants');
+const { inicioDelDia } = require('../lib/zonaHoraria');
 
 class TareaService {
-  constructor({ tareaRepository, moduloRepository, usuarioRepository, auditoriaRepository }) {
+  constructor({ tareaRepository, moduloRepository, usuarioRepository, auditoriaRepository, config }) {
+    this.timezone = config.timezone;
     this.tareas = tareaRepository;
     this.modulos = moduloRepository;
     this.usuarios = usuarioRepository;
@@ -39,7 +41,13 @@ class TareaService {
   async actualizar(id, dto, actor) {
     const actual = await this.obtener(id);
 
-    if (dto.id_modulo !== undefined && dto.id_modulo !== actual.id_modulo) await this.#validarModulo(dto.id_modulo);
+    if (dto.id_modulo !== undefined && dto.id_modulo !== actual.id_modulo) {
+      // Los documentos pertenecen al módulo de su tarea: moverla los dejaría incoherentes.
+      if (actual._count?.documentos > 0) {
+        throw new BadRequestError('No se puede cambiar de módulo una tarea que tiene documentos adjuntos');
+      }
+      await this.#validarModulo(dto.id_modulo);
+    }
     if (dto.id_asignado) await this.#validarUsuario(dto.id_asignado);
 
     const data = { ...dto };
@@ -115,8 +123,9 @@ class TareaService {
       ];
     }
     if (vencidas) {
-      where.fecha_limite = { lt: new Date() };
-      where.estado = { not: ESTADO_FINAL };
+      // Una tarea que vence HOY todavía no está vencida: cuenta desde el inicio del día (en la zona configurada).
+      where.fecha_limite = { lt: inicioDelDia(new Date(), this.timezone) };
+      if (!estado) where.estado = { not: ESTADO_FINAL };
     }
     return where;
   }

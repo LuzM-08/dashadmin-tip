@@ -22,6 +22,7 @@ const TareaService = require('./services/tarea.service');
 const ModuloService = require('./services/modulo.service');
 const RecordatorioService = require('./services/recordatorio.service');
 const AlertasService = require('./services/alertas.service');
+const UsuarioService = require('./services/usuario.service');
 const DocumentoService = require('./services/documento.service');
 const PlantillasCorreo = require('./services/plantillas-correo');
 const AuthController = require('./controllers/auth.controller');
@@ -30,6 +31,7 @@ const ModuloController = require('./controllers/modulo.controller');
 const RecordatorioController = require('./controllers/recordatorio.controller');
 const AlertaController = require('./controllers/alerta.controller');
 const DocumentoController = require('./controllers/documento.controller');
+const UsuarioController = require('./controllers/usuario.controller');
 
 // Único lugar donde se conocen las implementaciones concretas (composition root).
 module.exports = () =>
@@ -59,6 +61,7 @@ module.exports = () =>
     .register('moduloService', (c) => new ModuloService(c))
     .register('recordatorioService', (c) => new RecordatorioService(c))
     .register('alertasService', (c) => new AlertasService(c))
+    .register('usuarioService', (c) => new UsuarioService(c))
     .register('documentoService', (c) => new DocumentoService(c))
     // middlewares y controllers
     .register('authMiddleware', (c) => new AuthMiddleware(c))
@@ -67,4 +70,5 @@ module.exports = () =>
     .register('moduloController', (c) => new ModuloController(c))
     .register('recordatorioController', (c) => new RecordatorioController(c))
     .register('alertaController', (c) => new AlertaController(c))
-    .register('documentoController', (c) => new DocumentoController(c));
+    .register('documentoController', (c) => new DocumentoController(c))
+    .register('usuarioController', (c) => new UsuarioController(c));
