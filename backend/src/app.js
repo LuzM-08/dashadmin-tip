@@ -7,6 +7,7 @@ const { notFound, errorHandler } = require('./middlewares/error.middleware');
 module.exports = (container) => {
   const { config } = container.cradle;
   const app = express();
+  app.set('trust proxy', config.trustProxy);
 
   app.use(helmet());
   // Content-Disposition se expone para que el frontend pueda leer el nombre del archivo al descargar.

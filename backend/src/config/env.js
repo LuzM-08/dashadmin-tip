@@ -11,12 +11,27 @@ const bool = (valor, porDefecto) =>
 const numero = (valor, porDefecto) =>
   valor === undefined || valor === '' || Number.isNaN(Number(valor)) ? porDefecto : Number(valor);
 
+const nodeEnv = process.env.NODE_ENV || 'development';
+
+// En producción el sistema se niega a arrancar con una configuración insegura.
+if (nodeEnv === 'production') {
+  const secreto = process.env.JWT_SECRET;
+  if (secreto.length < 32 || /cambia|changeme/i.test(secreto)) {
+    throw new Error('JWT_SECRET debe tener al menos 32 caracteres aleatorios en producción');
+  }
+  if (!process.env.CORS_ORIGIN || process.env.CORS_ORIGIN === '*') {
+    throw new Error('Define CORS_ORIGIN con la URL pública del sistema en producción (no se permite "*")');
+  }
+}
+
 module.exports = {
-  nodeEnv: process.env.NODE_ENV || 'development',
+  nodeEnv,
   port: Number(process.env.PORT) || 3000,
   jwtSecret: process.env.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '8h',
   corsOrigin: process.env.CORS_ORIGIN || '*',
+  // Cantidad de proxies de confianza delante del backend (nginx = 1). Necesario para que el límite de intentos de login vea la IP real.
+  trustProxy: numero(process.env.TRUST_PROXY, 0),
   appUrl: process.env.APP_URL || 'http://localhost:5173',
   timezone: process.env.SCHEDULER_TZ || process.env.TZ || 'America/Santiago',
 
