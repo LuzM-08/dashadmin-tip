@@ -1,0 +1,10 @@
+# Modo "archivos": certificado entregado por TI de la empresa (CA corporativa o comercial).
+# Colocar en ./certs:  cert.pem (certificado + cadena intermedia)  y  key.pem (clave privada).
+# La renovación es manual: al reemplazar los archivos, reiniciar con `dc restart caddy`.
+{$DOMINIO} {
+	tls /certs/cert.pem /certs/key.pem
+	encode zstd gzip
+	header Strict-Transport-Security "max-age={$HSTS_SEGUNDOS:300}"
+	log
+	reverse_proxy frontend:80
+}

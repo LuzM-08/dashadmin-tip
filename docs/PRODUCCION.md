@@ -1,12 +1,12 @@
 # Despliegue en producción · Dashboard AP
 
-Arquitectura: **nginx** sirve la SPA y reenvía `/api` al **backend**; el backend usa **PostgreSQL** y guarda los documentos en un volumen.
-Solo se expone un puerto (`HTTP_PORT`). La base de datos no es accesible desde fuera de Docker.
+Arquitectura: **Caddy** (HTTPS) → **nginx** (sirve la SPA y reenvía `/api`) → **backend** → **PostgreSQL**; los documentos viven en un volumen.
+Solo se exponen los puertos 80 y 443 (Caddy). La base de datos no es accesible desde fuera de Docker.
 
 ## 1. Requisitos
 - Docker + Docker Compose en el servidor.
 - Un servidor SMTP de la empresa (host, puerto, usuario y clave).
-- (Recomendado) Un nombre DNS y HTTPS (ver sección 9).
+- Un **nombre DNS** para el sistema y la elección del modo de certificado HTTPS: ver `docs/HTTPS_DNS.md` (hazlo antes de levantar).
 
 ## 2. Configurar
 ```powershell
@@ -26,7 +26,7 @@ function dc { docker compose -f docker-compose.prod.yml --env-file .env.prod @ar
 ## 3. Levantar
 ```powershell
 dc up -d --build
-dc ps                       # los tres servicios deben quedar "healthy"
+dc ps                       # los cuatro servicios deben quedar activos ("healthy")
 dc logs app-node --tail 30  # debe decir "API escuchando en :4000"
 ```
 Las migraciones de base de datos se aplican solas al arrancar el backend.
@@ -57,13 +57,13 @@ No se puede desactivar a la única jefatura activa.
 3. Desde ahí, cada viernes a las 18:00 el sistema genera solo la rotación de la semana siguiente y avisa por correo.
 
 ## 7. Verificación posterior al despliegue
-- [ ] `http://SERVIDOR/healthz` responde `ok`.
+- [ ] `https://TU-DOMINIO/healthz` responde `ok` y `http://` redirige a `https://`.
 - [ ] El inicio de sesión funciona y **no** aparece el menú "Cambiar vista" ni la insignia "Modo pruebas".
 - [ ] Recargar la página en `/tareas` (F5) no da error 404.
 - [ ] Subir un PDF, abrirlo con **Ver** y descargarlo (confirma que la política CSP permite la vista previa).
 - [ ] Programar un recordatorio para dentro de 2 minutos: debe llegar el correo.
 - [ ] 11 intentos fallidos de login desde un equipo bloquean a ese equipo, pero otro equipo puede seguir ingresando (confirma que se ve la IP real).
-- [ ] `docker ps` muestra publicado solo el puerto del frontend (no 5432 ni 4000).
+- [ ] `docker ps` muestra publicados solo los puertos 80 y 443 (no 5432 ni 4000).
 
 ## 8. Actualizar a una nueva versión
 ```powershell
@@ -90,10 +90,9 @@ docker run --rm -v ap_prod_uploads:/datos -v ${PWD}:/respaldo alpine sh -c 'cd /
 ```
 Programa los respaldos (tarea programada del sistema) y guarda copias fuera del servidor. Prueba una restauración al menos una vez.
 
-## 10. HTTPS
-Las contraseñas y el token viajan por la red: **en producción debe usarse HTTPS**. Dos opciones:
-- Poner delante un proxy/balanceador de la empresa que termine TLS y reenvíe a `HTTP_PORT`. Si hay un proxy adicional además de nginx, sube `TRUST_PROXY` a 2 en `docker-compose.prod.yml`.
-- Terminar TLS en el propio nginx (certificados en `frontend/nginx/`) y activar la línea `Strict-Transport-Security` de `security-headers.conf`.
+## 10. HTTPS y DNS
+Ver `docs/HTTPS_DNS.md`: modos de certificado, creación del nombre en el DNS, firewall, verificación y diagnóstico.
+En producción **no debe usarse sin HTTPS**: las contraseñas y el token viajarían sin cifrar.
 
 ## 11. Pendientes conocidos
 - No hay pantalla de administración de usuarios ni cambio de contraseña por el propio usuario (hoy: sección 5).

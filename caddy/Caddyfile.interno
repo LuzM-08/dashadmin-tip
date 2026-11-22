@@ -1,0 +1,15 @@
+# Modo "interno": red interna sin acceso desde Internet. Caddy emite el certificado con su propia
+# autoridad (CA) local. Funciona con un nombre o directamente con una IP en DOMINIO.
+# Los equipos de los usuarios deben confiar en esa CA (ver docs/HTTPS_DNS.md), o el navegador mostrará una advertencia.
+{
+	# Si el navegador no indica el nombre (ocurre al entrar por IP), se usa el certificado de DOMINIO.
+	default_sni {$DOMINIO}
+}
+
+{$DOMINIO}, localhost {
+	tls internal
+	encode zstd gzip
+	header Strict-Transport-Security "max-age={$HSTS_SEGUNDOS:300}"
+	log
+	reverse_proxy frontend:80
+}

@@ -1,0 +1,15 @@
+# Modo "letsencrypt": dominio público, puertos 80 y 443 alcanzables desde Internet.
+# Caddy obtiene y renueva el certificado solo (Let's Encrypt).
+{
+	email {$ACME_EMAIL}
+	# Para pruebas usa el entorno de ensayo (sin límites de emisión): ACME_CA=https://acme-staging-v02.api.letsencrypt.org/directory
+	acme_ca {$ACME_CA:https://acme-v02.api.letsencrypt.org/directory}
+}
+
+{$DOMINIO} {
+	encode zstd gzip
+	# Empezar con un valor bajo y subirlo a 31536000 (1 año) cuando todo esté verificado.
+	header Strict-Transport-Security "max-age={$HSTS_SEGUNDOS:300}"
+	log
+	reverse_proxy frontend:80
+}

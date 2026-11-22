@@ -1,0 +1,4 @@
+Solo para TLS_MODO=archivos. Colocar aquí:
+  cert.pem  -> certificado del servidor seguido de la cadena intermedia (formato PEM)
+  key.pem   -> clave privada (formato PEM, sin contraseña)
+NUNCA subir estos archivos al repositorio (agregar certs/*.pem a .gitignore).
