@@ -6,6 +6,8 @@ import Inicio from './pages/Inicio.jsx';
 import Modulos from './pages/Modulos.jsx';
 import Tareas from './pages/Tareas.jsx';
 import Eventos from './pages/Eventos.jsx';
+import Cuenta from './pages/Cuenta.jsx';
+import Usuarios from './pages/Usuarios.jsx';
 import NoEncontrada from './pages/NoEncontrada.jsx';
 
 // SPA: todas las rutas se resuelven en el navegador; el servidor solo entrega index.html.
@@ -24,7 +26,12 @@ export default function App() {
           <Route element={<RequierePermiso permiso="tareas:leer" />}>
             <Route path="tareas" element={<Tareas />} />
           </Route>
-          <Route element={<RequierePermiso permiso="eventos:ver" />}>            <Route path="eventos" element={<Eventos />} />
+          <Route element={<RequierePermiso permiso="eventos:ver" />}>
+            <Route path="eventos" element={<Eventos />} />
+          </Route>
+          <Route path="cuenta" element={<Cuenta />} />
+          <Route element={<RequierePermiso permiso="usuarios:administrar" />}>
+            <Route path="usuarios" element={<Usuarios />} />
           </Route>
           <Route path="*" element={<NoEncontrada />} />
         </Route>

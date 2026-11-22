@@ -20,7 +20,7 @@ function Evento({ evento: e, puedeGestionar, onEditar, onEliminar }) {
           {e.detalle && <p className="mt-0.5 text-xs text-slate-500">{e.detalle}</p>}
           {e.tarea && <p className="mt-0.5 text-xs text-slate-500">Tarea: {e.tarea.titulo}</p>}
           <p className={`mt-1 text-xs ${estadoCorreo(e).clase}`}>{estadoCorreo(e).texto}</p>
-                  {puedeGestionar && (
+          {puedeGestionar && (
             <div className="mt-2 flex gap-4 text-sm">
               <button type="button" onClick={() => onEditar(recordatorioDesdeEvento(e))} className="font-medium text-blue-700 hover:underline">Editar</button>
               <button type="button" onClick={() => onEliminar(recordatorioDesdeEvento(e))} className="font-medium text-red-600 hover:underline">Eliminar</button>
@@ -62,7 +62,7 @@ export default function PanelDia({ clave, eventos, puedeGestionar, onNuevo, onEd
         <p className="mt-4 rounded-lg border border-dashed border-slate-300 p-4 text-center text-sm text-slate-500">No hay eventos este día.</p>
       ) : (
         <ul className="mt-4 space-y-3">
-          {eventos.map((e) => (<Evento key={`${e.tipo}-${e.id}`} evento={e} puedeGestionar={puedeGestionar} onEditar={onEditar} onEliminar={onEliminar} />))}
+          {eventos.map((e) => <Evento key={`${e.tipo}-${e.id}`} evento={e} puedeGestionar={puedeGestionar} onEditar={onEditar} onEliminar={onEliminar} />)}
         </ul>
       )}
     </section>

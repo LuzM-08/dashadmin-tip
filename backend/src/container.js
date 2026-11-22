@@ -23,6 +23,8 @@ const ModuloService = require('./services/modulo.service');
 const RecordatorioService = require('./services/recordatorio.service');
 const AlertasService = require('./services/alertas.service');
 const UsuarioService = require('./services/usuario.service');
+const UsuarioAdminService = require('./services/usuario-admin.service');
+const SesionCache = require('./lib/sesionCache');
 const DocumentoService = require('./services/documento.service');
 const PlantillasCorreo = require('./services/plantillas-correo');
 const AuthController = require('./controllers/auth.controller');
@@ -32,6 +34,7 @@ const RecordatorioController = require('./controllers/recordatorio.controller');
 const AlertaController = require('./controllers/alerta.controller');
 const DocumentoController = require('./controllers/documento.controller');
 const UsuarioController = require('./controllers/usuario.controller');
+const UsuarioAdminController = require('./controllers/usuario-admin.controller');
 
 // Único lugar donde se conocen las implementaciones concretas (composition root).
 module.exports = () =>
@@ -40,6 +43,7 @@ module.exports = () =>
     .register('config', () => config)
     .register('prisma', createPrisma)
     .register('passwordHasher', () => new PasswordHasher())
+    .register('sesionCache', () => new SesionCache())
     .register('mailer', (c) => new Mailer(c))
     .register('scheduler', (c) => new Scheduler(c))
     .register('almacenamiento', (c) => new AlmacenamientoLocal(c))
@@ -62,6 +66,7 @@ module.exports = () =>
     .register('recordatorioService', (c) => new RecordatorioService(c))
     .register('alertasService', (c) => new AlertasService(c))
     .register('usuarioService', (c) => new UsuarioService(c))
+    .register('usuarioAdminService', (c) => new UsuarioAdminService(c))
     .register('documentoService', (c) => new DocumentoService(c))
     // middlewares y controllers
     .register('authMiddleware', (c) => new AuthMiddleware(c))
@@ -71,4 +76,5 @@ module.exports = () =>
     .register('recordatorioController', (c) => new RecordatorioController(c))
     .register('alertaController', (c) => new AlertaController(c))
     .register('documentoController', (c) => new DocumentoController(c))
-    .register('usuarioController', (c) => new UsuarioController(c));
+    .register('usuarioController', (c) => new UsuarioController(c))
+    .register('usuarioAdminController', (c) => new UsuarioAdminController(c));

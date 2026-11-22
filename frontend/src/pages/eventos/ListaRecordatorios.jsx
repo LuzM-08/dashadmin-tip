@@ -20,7 +20,8 @@ export default function ListaRecordatorios({ recordatorios, puedeGestionar, onEd
                 <th scope="col" className="px-4 py-2">Recordatorio</th>
                 <th scope="col" className="px-4 py-2">Tarea</th>
                 <th scope="col" className="px-4 py-2">Correo</th>
-                {puedeGestionar && <th scope="col" className="px-4 py-2 text-right">Acciones</th>}              </tr>
+                {puedeGestionar && <th scope="col" className="px-4 py-2 text-right">Acciones</th>}
+              </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {recordatorios.map((r) => {
@@ -34,7 +35,7 @@ export default function ListaRecordatorios({ recordatorios, puedeGestionar, onEd
                     </td>
                     <td className="max-w-[14rem] truncate px-4 py-2 text-slate-600">{r.tarea?.titulo ?? <span className="text-slate-400">—</span>}</td>
                     <td className={`whitespace-nowrap px-4 py-2 ${correo.clase}`}>{correo.texto}</td>
-                       {puedeGestionar && (
+                    {puedeGestionar && (
                       <td className="whitespace-nowrap px-4 py-2 text-right">
                         <button type="button" onClick={() => onEditar(r)} className="font-medium text-blue-700 hover:underline">Editar</button>
                         <button type="button" onClick={() => onEliminar(r)} className="ml-4 font-medium text-red-600 hover:underline">Eliminar</button>

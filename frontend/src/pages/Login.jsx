@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext.jsx';
 import { IconoCasa } from '../components/Iconos.jsx';
+import { NOMBRE_EMPRESA } from '../config/marca.js';
 import { MODO_PRUEBAS, USUARIOS_DEMO } from '../config/pruebas.js';
 
 export default function Login() {
@@ -34,8 +35,8 @@ export default function Login() {
           <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-900 text-white">
             <IconoCasa className="h-7 w-7" />
           </span>
-          <h1 className="mt-4 text-xl font-semibold text-blue-950">Cuentas por Pagar</h1>
-          <p className="mt-1 text-sm text-slate-500">Inicia sesión para continuar</p>
+          <h1 className="mt-4 text-xl font-semibold text-blue-950">{NOMBRE_EMPRESA}</h1>
+          <p className="mt-1 text-sm text-slate-500">Cuentas por Pagar · Inicia sesión para continuar</p>
         </div>
 
         <form onSubmit={enviar} className="mt-6 space-y-4">

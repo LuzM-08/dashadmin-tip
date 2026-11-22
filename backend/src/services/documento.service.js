@@ -1,8 +1,11 @@
 const path = require('path');
 const { NotFoundError, BadRequestError, ForbiddenError } = require('../lib/errors');
 
-// Sin permiso dedicado de eliminación en el seed: puede borrar quien subió el archivo o quien rota módulos (jefatura).
-const PERMISO_ADMIN = 'modulos:rotar';
+// Eliminación por permisos explícitos (sin atajos por rol):
+//  - documentos:eliminar          → cualquier documento
+//  - documentos:eliminar_propios  → solo los que la persona subió
+const PERMISO_ELIMINAR = 'documentos:eliminar';
+const PERMISO_ELIMINAR_PROPIOS = 'documentos:eliminar_propios';
 
 class DocumentoService {
   constructor({ documentoRepository, moduloRepository, tareaRepository, auditoriaRepository, almacenamiento, archivoValidator }) {
@@ -79,9 +82,11 @@ class DocumentoService {
     const doc = await this.documentos.findInternoById(id);
     if (!doc) throw new NotFoundError('Documento no encontrado');
 
-    const esAutor = doc.id_subido_por === actor.id_usuario;
-    const esAdmin = actor.permisos.includes(PERMISO_ADMIN);
-    if (!esAutor && !esAdmin) throw new ForbiddenError('Solo quien subió el documento o la jefatura pueden eliminarlo');
+    const puedeCualquiera = actor.permisos.includes(PERMISO_ELIMINAR);
+    const puedePropio = actor.permisos.includes(PERMISO_ELIMINAR_PROPIOS) && doc.id_subido_por === actor.id_usuario;
+    if (!puedeCualquiera && !puedePropio) {
+      throw new ForbiddenError('No tienes permiso para eliminar este documento');
+    }
 
     // Primero la BD (fuente de verdad); si el archivo no se puede borrar queda un huérfano, pero nunca un registro roto.
     await this.documentos.delete(id);

@@ -46,6 +46,13 @@ export function AuthProvider({ children }) {
     return data.usuario;
   }, []);
 
+  // Tras cambiar la contraseña el servidor emite un token nuevo (el anterior queda inválido).
+  const actualizarSesion = useCallback((nuevoToken, nuevoUsuario) => {
+    localStorage.setItem(TOKEN_KEY, nuevoToken);
+    setToken(nuevoToken);
+    setUsuario(nuevoUsuario);
+  }, []);
+
   // SOLO PRUEBAS: cambia de usuario de demostración para ver el sistema con otros permisos.
   const cambiarVista = useCallback((email) => login(email, PASSWORD_DEMO), [login]);
 
@@ -56,9 +63,10 @@ export function AuthProvider({ children }) {
       login,
       logout,
       cambiarVista,
+      actualizarSesion,
       tienePermiso: (codigo) => Boolean(usuario?.permisos?.includes(codigo)),
     }),
-    [usuario, cargando, login, logout, cambiarVista],
+    [usuario, cargando, login, logout, cambiarVista, actualizarSesion],
   );
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

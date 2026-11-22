@@ -35,11 +35,16 @@ Las migraciones de base de datos se aplican solas al arrancar el backend.
 ```powershell
 dc exec -e ADMIN_EMAIL=jefa@tuempresa.cl -e "ADMIN_NAME=Nombre Apellido" -e "ADMIN_PASSWORD=una-clave-larga-y-unica" app-node node prisma/seed.prod.js
 ```
-Crea roles, permisos, los 5 módulos y la primera jefatura. **No** crea usuarios ni tareas de demostración.
+Crea roles, permisos, los 5 módulos y la primera jefatura (la clave debe tener 12+ caracteres, con letras y números). **No** crea usuarios ni tareas de demostración.
 Es repetible: si ya existe una jefatura, solo sincroniza roles, permisos y módulos (no pide credenciales).
 La clave queda en el historial de la terminal: bórralo (`Clear-History`) o restablece la clave después (sección 5).
 
-## 5. Usuarios (por ahora, por línea de comandos)
+## 5. Usuarios
+**Desde la aplicación (recomendado):** la jefatura tiene la pestaña **Usuarios** para crear cuentas, cambiar roles,
+activar/desactivar y restablecer contraseñas. Cualquier usuario puede cambiar su propia contraseña en **Mi cuenta**
+(menú del perfil). Desactivar a alguien o cambiarle el rol rige de inmediato; cambiar una contraseña cierra sus sesiones abiertas.
+
+**Por línea de comandos (emergencia, por ejemplo si se pierde el acceso de toda la jefatura):**
 ```powershell
 # Crear (ROL: jefatura | analista_ap | visor; clave de 12 caracteres o más)
 dc exec -e ACCION=crear -e EMAIL=ana@tuempresa.cl -e "NOMBRE=Ana Pérez" -e ROL=analista_ap -e "PASSWORD=clave-larga-123" app-node node prisma/usuario.js
@@ -95,9 +100,10 @@ Ver `docs/HTTPS_DNS.md`: modos de certificado, creación del nombre en el DNS, f
 En producción **no debe usarse sin HTTPS**: las contraseñas y el token viajarían sin cifrar.
 
 ## 11. Pendientes conocidos
-- No hay pantalla de administración de usuarios ni cambio de contraseña por el propio usuario (hoy: sección 5).
-- Eliminar documentos usa la regla "autor o jefatura" (no existe un permiso propio).
+- Los usuarios nuevos no están obligados a cambiar su contraseña inicial en el primer ingreso (se les pide hacerlo de palabra).
+- No hay recuperación de contraseña por correo: si alguien la olvida, la jefatura se la restablece.
+- El correo de un usuario no se puede editar desde la pantalla (para corregirlo, crea la cuenta nueva y desactiva la anterior).
 - Los mensajes de validación del servidor llegan en inglés.
 - No hay renovación automática de sesión: el token dura `JWT_EXPIRES_IN` (8 h).
 - La tabla de auditoría crece sin límite; conviene definir una política de retención.
-- `seed.prod.js` y `seed.js` repiten los permisos y módulos: si cambias uno, cambia el otro.
+- Roles, permisos y módulos viven solo en `backend/prisma/datos-base.js` (lo usan `seed.js` y `seed.prod.js`). `seed.js` se niega a correr con `NODE_ENV=production`.

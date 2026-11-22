@@ -6,6 +6,7 @@ const createRecordatorioRoutes = require('./recordatorio.routes');
 const createAlertaRoutes = require('./alerta.routes');
 const createDocumentoRoutes = require('./documento.routes');
 const createUsuarioRoutes = require('./usuario.routes');
+const createUsuarioAdminRoutes = require('./usuario-admin.routes');
 
 module.exports = (container) => {
   const router = Router();
@@ -18,6 +19,7 @@ module.exports = (container) => {
   router.use('/alertas', createAlertaRoutes(deps));
   router.use('/documentos', createDocumentoRoutes(deps));
   router.use('/usuarios', createUsuarioRoutes(deps));
+  router.use('/admin/usuarios', createUsuarioAdminRoutes(deps));
 
   return router;
 };

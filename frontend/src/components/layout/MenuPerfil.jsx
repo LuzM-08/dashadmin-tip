@@ -42,6 +42,11 @@ export default function MenuPerfil() {
     }
   };
 
+  const irACuenta = () => {
+    setAbierto(false);
+    navigate('/cuenta');
+  };
+
   const salir = () => {
     setAbierto(false);
     logout();
@@ -113,6 +118,15 @@ export default function MenuPerfil() {
               {error && <p role="alert" className="mt-2 text-xs text-red-600">{error}</p>}
             </div>
           )}
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={irACuenta}
+            className="w-full border-b border-slate-100 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Mi cuenta y contraseña
+          </button>
 
           <button
             type="button"

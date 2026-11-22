@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { IconoBuscar, IconoCasa } from '../Iconos.jsx';
 import MenuPerfil from './MenuPerfil.jsx';
 import { MODO_PRUEBAS } from '../../config/pruebas.js';
+import { NOMBRE_EMPRESA } from '../../config/marca.js';
 
-// Barra 1: logo (casa) que lleva al inicio, buscador y perfil.
+// Barra 1: marca (el ícono es solo decorativo, no es un enlace), buscador y perfil. Ir al inicio: pestaña "Inicio".
 export default function BarraSuperior() {
   const [texto, setTexto] = useState('');
   const navigate = useNavigate();
@@ -18,10 +19,10 @@ export default function BarraSuperior() {
   return (
     <header className="bg-blue-900 text-white">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-6">
-        <Link to="/" aria-label="Ir al inicio" className="flex shrink-0 items-center gap-2 rounded-lg px-1 py-1 hover:bg-white/10">
+        <div className="flex shrink-0 select-none items-center gap-2 px-1 py-1">
           <IconoCasa className="h-7 w-7" />
-          <span className="hidden text-sm font-semibold tracking-wide sm:inline">Cuentas por Pagar</span>
-        </Link>
+          <span className="hidden text-sm font-semibold tracking-wide sm:inline">{NOMBRE_EMPRESA}</span>
+        </div>
 
         <form onSubmit={buscar} role="search" className="mx-auto w-full max-w-xl">
           <label htmlFor="busqueda" className="sr-only">Buscar tareas</label>

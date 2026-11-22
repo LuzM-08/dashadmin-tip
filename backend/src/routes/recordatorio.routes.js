@@ -7,8 +7,9 @@ module.exports = ({ recordatorioController: c, authMiddleware: auth }) => {
   const r = Router();
   r.use(auth.authenticate);
 
-  const ver = auth.requirePermission('eventos:ver'); // solo lectura
-  const gestionar = auth.requirePermission('eventos:gestionar'); // crear, editar, eliminar
+  // Ver: solo lectura (incluye visor). Gestionar: crear, editar y eliminar.
+  const ver = auth.requirePermission('eventos:ver');
+  const gestionar = auth.requirePermission('eventos:gestionar');
 
   // /calendario antes de /:id
   r.get('/calendario', ver, validate(v.calendario, 'query'), asyncHandler(c.calendario));

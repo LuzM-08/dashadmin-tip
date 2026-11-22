@@ -16,8 +16,19 @@ module.exports = ({ authController: c, authMiddleware: auth }) => {
     message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Demasiados intentos. Intenta más tarde.' } },
   });
 
+  // Cambiar la contraseña también exige adivinar la actual: mismo freno.
+  const limiteClave = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Demasiados intentos. Intenta más tarde.' } },
+  });
+
   r.post('/login', limiteLogin, validate(v.login), asyncHandler(c.login));
   r.get('/me', auth.authenticate, asyncHandler(c.me));
+  // Disponible para cualquier usuario autenticado, sin importar su rol.
+  r.post('/clave', auth.authenticate, limiteClave, validate(v.cambiarClave), asyncHandler(c.cambiarClave));
 
   return r;
 };

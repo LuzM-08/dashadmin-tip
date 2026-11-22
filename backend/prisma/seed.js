@@ -1,5 +1,6 @@
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
+const { sembrarBase } = require('./datos-base');
 
 const prisma = new PrismaClient();
 
@@ -20,81 +21,15 @@ function obtenerRangoSemanaActual() {
 }
 
 async function main() {
+  // Los datos de demostración (usuarios con clave pública conocida) jamás deben llegar a producción.
+  if (process.env.NODE_ENV === 'production' && process.env.PERMITIR_SEED_DEMO !== 'true') {
+    throw new Error('seed.js es solo para desarrollo/demo. En producción usa prisma/seed.prod.js');
+  }
+
   console.log('Iniciando seed para Cuentas por Pagar (Dashboard Admin V2)...');
 
-  // 1. Roles
-  const rolesData = [
-    { nombre_rol: 'jefatura', descripcion: 'Jefatura de Cuentas por Pagar con control total y rotación de módulos' },
-    { nombre_rol: 'analista_ap', descripcion: 'Analista de Cuentas por Pagar encargado de tareas, avances y documentos' },
-    { nombre_rol: 'visor', descripcion: 'Consulta y trazabilidad de módulos y tareas' },
-  ];
-
-  const rolesMap = {};
-  for (const r of rolesData) {
-    const rol = await prisma.rol.upsert({
-      where: { nombre_rol: r.nombre_rol },
-      update: { descripcion: r.descripcion },
-      create: r,
-    });
-    rolesMap[r.nombre_rol] = rol;
-  }
-
-  // 2. Permisos y matriz PermisoRol
-  const permisosData = [
-    { codigo_permiso: 'modulos:ver', descripcion: 'Visualizar módulos de Cuentas por Pagar' },
-    { codigo_permiso: 'modulos:rotar', descripcion: 'Asignar o rotar responsables semanales de módulos' },
-    { codigo_permiso: 'tareas:leer', descripcion: 'Consultar tareas y estados' },
-    { codigo_permiso: 'tareas:crear', descripcion: 'Crear tareas con prioridad y fecha límite' },
-    { codigo_permiso: 'tareas:editar', descripcion: 'Editar tareas, prioridades, fechas o estados' },
-    { codigo_permiso: 'tareas:eliminar', descripcion: 'Eliminar tareas' },
-    { codigo_permiso: 'documentos:subir', descripcion: 'Adjuntar documentos a módulos o tareas' },
-    { codigo_permiso: 'eventos:gestionar', descripcion: 'Ver y programar recordatorios o alertas' },
-    { codigo_permiso: 'eventos:ver', descripcion: 'Consultar eventos y recordatorios agendados (solo lectura)' },
-  ];
-
-  const permisosMap = {};
-  for (const p of permisosData) {
-    const permiso = await prisma.permiso.upsert({
-      where: { codigo_permiso: p.codigo_permiso },
-      update: { descripcion: p.descripcion },
-      create: p,
-    });
-    permisosMap[p.codigo_permiso] = permiso;
-  }
-
-  const asignacionesPermisos = {
-    jefatura: Object.keys(permisosMap),
-    analista_ap: [
-      'modulos:ver',
-      'tareas:leer',
-      'tareas:crear',
-      'tareas:editar',
-      'documentos:subir',
-      'eventos:gestionar',
-    ],
-        analista_ap: [
-      'modulos:ver',
-      'tareas:leer',
-      'tareas:crear',
-      'tareas:editar',
-      'documentos:subir',
-      'eventos:ver',
-      'eventos:gestionar',
-    ],
-    visor: ['modulos:ver', 'tareas:leer', 'eventos:ver'],
-  };
-
-  for (const [nombreRol, codigos] of Object.entries(asignacionesPermisos)) {
-    const idRol = rolesMap[nombreRol].id_rol;
-    for (const codigo of codigos) {
-      const idPermiso = permisosMap[codigo].id_permiso;
-      await prisma.permisoRol.upsert({
-        where: { id_rol_id_permiso: { id_rol: idRol, id_permiso: idPermiso } },
-        update: {},
-        create: { id_rol: idRol, id_permiso: idPermiso },
-      });
-    }
-  }
+  // 1-2 y 4. Roles, permisos, matriz y módulos: compartidos con producción (datos-base.js).
+  const { roles: rolesMap, modulos: modulosMap } = await sembrarBase(prisma);
 
   // 3. Usuarios de prueba (Password común para pruebas locales: "ApDemo2026!")
   const passwordHash = await bcrypt.hash('ApDemo2026!', 10);
@@ -134,55 +69,6 @@ async function main() {
       create: u,
     });
     usuariosMap[u.email] = usuario;
-  }
-
-  // 4. Los 5 Módulos de Cuentas por Pagar
-  const modulosData = [
-    {
-      codigo_modulo: 'PRIORIDAD',
-      nombre_modulo: 'Prioridad',
-      descripcion: 'Pagos urgentes, retenciones críticas y vencimientos inmediatos',
-      orden_visual: 1,
-    },
-    {
-      codigo_modulo: 'PROVEEDORES',
-      nombre_modulo: 'Proveedores',
-      descripcion: 'Conciliación de facturas, órdenes de compra y pagos a proveedores',
-      orden_visual: 2,
-    },
-    {
-      codigo_modulo: 'FRANQUICIAS',
-      nombre_modulo: 'Franquicias',
-      descripcion: 'Movimientos, cargos y liquidaciones asociadas a franquicias',
-      orden_visual: 3,
-    },
-    {
-      codigo_modulo: 'CORPORATIVO',
-      nombre_modulo: 'Corporativo',
-      descripcion: 'Gastos corporativos, servicios centrales y contratos matriz',
-      orden_visual: 4,
-    },
-    {
-      codigo_modulo: 'FACTURAS_GENERALES',
-      nombre_modulo: 'Facturas Generales',
-      descripcion: 'Facturas operativas recurrentes y registros generales de AP',
-      orden_visual: 5,
-    },
-  ];
-
-  const modulosMap = {};
-  for (const m of modulosData) {
-    const modulo = await prisma.modulo.upsert({
-      where: { codigo_modulo: m.codigo_modulo },
-      update: {
-        nombre_modulo: m.nombre_modulo,
-        descripcion: m.descripcion,
-        orden_visual: m.orden_visual,
-        activo: true,
-      },
-      create: m,
-    });
-    modulosMap[m.codigo_modulo] = modulo;
   }
 
   // 5. Rotación Semanal inicial (idempotente por módulo y fecha_inicio)

@@ -33,6 +33,7 @@ export default function Eventos() {
     [],
   );
 
+  // Las tareas solo sirven para el formulario de recordatorios: quien no gestiona no las necesita.
   const misTareas = useAsync(
     () => (puedeGestionar
       ? api.get('/tareas', { consulta: { id_asignado: usuario.id_usuario, limit: 100, orden: 'fecha_limite', direccion: 'asc' } })
@@ -87,7 +88,9 @@ export default function Eventos() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-blue-950">Eventos</h1>
-          <p className="mt-1 text-sm text-slate-500">Tus recordatorios, fechas límite de tareas y rotaciones.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Tus recordatorios, fechas límite de tareas y rotaciones{puedeGestionar ? '.' : ' (solo lectura).'}
+          </p>
         </div>
         {puedeGestionar && (
           <button type="button" onClick={() => nuevo(seleccionado)} className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800">
@@ -114,8 +117,8 @@ export default function Eventos() {
 
         <PanelDia
           clave={seleccionado}
-          puedeGestionar={puedeGestionar}
           eventos={eventosPorDia.get(seleccionado) ?? []}
+          puedeGestionar={puedeGestionar}
           onNuevo={() => nuevo(seleccionado)}
           onEditar={(r) => setFormulario({ recordatorio: r, fecha: seleccionado })}
           onEliminar={setAEliminar}
@@ -133,7 +136,7 @@ export default function Eventos() {
         />
       )}
 
-      {formulario && (
+      {puedeGestionar && formulario && (
         <Modal titulo={formulario.recordatorio ? 'Editar recordatorio' : 'Nuevo recordatorio'} onCerrar={() => setFormulario(null)}>
           <FormularioRecordatorio
             recordatorio={formulario.recordatorio}
@@ -145,7 +148,7 @@ export default function Eventos() {
         </Modal>
       )}
 
-      {aEliminar && (
+      {puedeGestionar && aEliminar && (
         <Modal titulo="Eliminar recordatorio" onCerrar={() => !eliminando && setAEliminar(null)} ancho="max-w-md">
           <p className="text-sm text-slate-600">
             ¿Seguro que quieres eliminar <strong>{aEliminar.titulo}</strong>? Si el correo aún no salió, ya no se enviará.

@@ -20,7 +20,7 @@ async function ejecutar(prisma, hasher, env) {
     const nombre = (env.NOMBRE || '').trim();
     if (!nombre) throw new Error('Falta NOMBRE');
     if (!ROLES.includes(env.ROL)) throw new Error(`ROL debe ser uno de: ${ROLES.join(', ')}`);
-    const clave = validarClave(env.PASSWORD);
+    const clave = validarClave(env.PASSWORD, { email });
     const rol = await prisma.rol.findUnique({ where: { nombre_rol: env.ROL } });
     if (!rol) throw new Error('El rol no existe en la base de datos: ejecuta primero prisma/seed.prod.js');
     await prisma.usuario.create({ data: { nombre, email, password: await hasher.hash(clave, 12), id_rol: rol.id_rol, activo: true } });
@@ -30,7 +30,7 @@ async function ejecutar(prisma, hasher, env) {
   if (!usuario) throw new Error(`No existe un usuario con el correo ${email}`);
 
   if (accion === 'clave') {
-    const clave = validarClave(env.PASSWORD);
+    const clave = validarClave(env.PASSWORD, { email });
     await prisma.usuario.update({ where: { id_usuario: usuario.id_usuario }, data: { password: await hasher.hash(clave, 12) } });
     return `Contraseña restablecida para ${email}`;
   }

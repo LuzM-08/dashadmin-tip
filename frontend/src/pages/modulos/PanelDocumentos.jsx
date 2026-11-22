@@ -16,7 +16,9 @@ const entrada = 'rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm o
 export default function PanelDocumentos({ modulo, onCambio }) {
   const { usuario, tienePermiso } = useAuth();
   const puedeSubir = tienePermiso('documentos:subir');
-  const esJefatura = tienePermiso('modulos:rotar');
+  // Mismos permisos que valida el servidor: cualquiera / solo los propios.
+  const puedeEliminarCualquiera = tienePermiso('documentos:eliminar');
+  const puedeEliminarPropios = tienePermiso('documentos:eliminar_propios');
 
   const [pagina, setPagina] = useState(1);
   const [archivo, setArchivo] = useState(null);
@@ -193,7 +195,7 @@ export default function PanelDocumentos({ modulo, onCambio }) {
                 <tbody className="divide-y divide-slate-100">
                   {lista.map((d) => {
                     const ocupado = ocupadoId === d.id_documento;
-                    const puedeBorrar = esJefatura || d.subido_por.id_usuario === usuario.id_usuario;
+                    const puedeBorrar = puedeEliminarCualquiera || (puedeEliminarPropios && d.subido_por.id_usuario === usuario.id_usuario);
                     return (
                       <tr key={d.id_documento}>
                         <td className="max-w-xs break-words px-4 py-2 font-medium text-slate-900">{d.nombre_original}</td>
