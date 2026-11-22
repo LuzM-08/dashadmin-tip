@@ -49,6 +49,7 @@ async function main() {
     { codigo_permiso: 'tareas:eliminar', descripcion: 'Eliminar tareas' },
     { codigo_permiso: 'documentos:subir', descripcion: 'Adjuntar documentos a módulos o tareas' },
     { codigo_permiso: 'eventos:gestionar', descripcion: 'Ver y programar recordatorios o alertas' },
+    { codigo_permiso: 'eventos:ver', descripcion: 'Consultar eventos y recordatorios agendados (solo lectura)' },
   ];
 
   const permisosMap = {};
@@ -71,7 +72,16 @@ async function main() {
       'documentos:subir',
       'eventos:gestionar',
     ],
-    visor: ['modulos:ver', 'tareas:leer'],
+        analista_ap: [
+      'modulos:ver',
+      'tareas:leer',
+      'tareas:crear',
+      'tareas:editar',
+      'documentos:subir',
+      'eventos:ver',
+      'eventos:gestionar',
+    ],
+    visor: ['modulos:ver', 'tareas:leer', 'eventos:ver'],
   };
 
   for (const [nombreRol, codigos] of Object.entries(asignacionesPermisos)) {

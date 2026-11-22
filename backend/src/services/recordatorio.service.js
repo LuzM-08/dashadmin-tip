@@ -60,7 +60,7 @@ class RecordatorioService {
     const eventos = [
       ...recordatorios.map((r) => ({
         tipo: 'RECORDATORIO', id: r.id_recordatorio, fecha: r.fecha_evento, titulo: r.titulo,
-        detalle: r.descripcion, id_tarea: r.id_tarea, correo_enviado: r.correo_enviado,
+        detalle: r.descripcion, id_tarea: r.id_tarea, tarea: r.tarea, enviar_correo: r.enviar_correo, correo_enviado: r.correo_enviado,
       })),
       ...tareas.map((t) => ({
         tipo: 'TAREA_LIMITE', id: t.id_tarea, fecha: t.fecha_limite, titulo: t.titulo,

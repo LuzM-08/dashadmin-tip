@@ -24,8 +24,7 @@ export default function App() {
           <Route element={<RequierePermiso permiso="tareas:leer" />}>
             <Route path="tareas" element={<Tareas />} />
           </Route>
-          <Route element={<RequierePermiso permiso="eventos:gestionar" />}>
-            <Route path="eventos" element={<Eventos />} />
+          <Route element={<RequierePermiso permiso="eventos:ver" />}>            <Route path="eventos" element={<Eventos />} />
           </Route>
           <Route path="*" element={<NoEncontrada />} />
         </Route>

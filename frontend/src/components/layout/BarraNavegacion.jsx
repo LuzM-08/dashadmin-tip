@@ -4,7 +4,7 @@ import { useAuth } from '../../auth/AuthContext.jsx';
 const PESTANAS = [
   { a: '/modulos', texto: 'Módulos', permiso: 'modulos:ver' },
   { a: '/tareas', texto: 'Tareas', permiso: 'tareas:leer' },
-  { a: '/eventos', texto: 'Eventos', permiso: 'eventos:gestionar' },
+ { a: '/eventos', texto: 'Eventos', permiso: 'eventos:ver' },
 ];
 
 // Barra 2: solo muestra las secciones a las que el rol tiene acceso.

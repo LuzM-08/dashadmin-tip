@@ -5,14 +5,17 @@ const v = require('../validators/recordatorio.validator');
 
 module.exports = ({ recordatorioController: c, authMiddleware: auth }) => {
   const r = Router();
-  r.use(auth.authenticate, auth.requirePermission('eventos:gestionar'));
+  r.use(auth.authenticate);
+
+  const ver = auth.requirePermission('eventos:ver'); // solo lectura
+  const gestionar = auth.requirePermission('eventos:gestionar'); // crear, editar, eliminar
 
   // /calendario antes de /:id
-  r.get('/calendario', validate(v.calendario, 'query'), asyncHandler(c.calendario));
-  r.get('/', validate(v.listarRecordatorios, 'query'), asyncHandler(c.listar));
-  r.post('/', validate(v.crearRecordatorio), asyncHandler(c.crear));
-  r.patch('/:id', validate(v.idParams, 'params'), validate(v.actualizarRecordatorio), asyncHandler(c.actualizar));
-  r.delete('/:id', validate(v.idParams, 'params'), asyncHandler(c.eliminar));
+  r.get('/calendario', ver, validate(v.calendario, 'query'), asyncHandler(c.calendario));
+  r.get('/', ver, validate(v.listarRecordatorios, 'query'), asyncHandler(c.listar));
+  r.post('/', gestionar, validate(v.crearRecordatorio), asyncHandler(c.crear));
+  r.patch('/:id', gestionar, validate(v.idParams, 'params'), validate(v.actualizarRecordatorio), asyncHandler(c.actualizar));
+  r.delete('/:id', gestionar, validate(v.idParams, 'params'), asyncHandler(c.eliminar));
 
   return r;
 };
