@@ -8,9 +8,12 @@ module.exports = ({ authController: c, authMiddleware: auth }) => {
   const r = Router();
 
   // Freno básico a fuerza bruta: 10 intentos por IP cada 15 minutos.
+  // RATE_LIMIT_AUTH permite subirlo SOLO en el entorno de pruebas automáticas (e2e); en producción no se define.
+  
+  const intentos = Number(process.env.RATE_LIMIT_AUTH) || 10;
   const limiteLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 10,
+    limit: intentos,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: { code: 'TOO_MANY_REQUESTS', message: 'Demasiados intentos. Intenta más tarde.' } },

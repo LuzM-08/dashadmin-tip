@@ -1,0 +1,20 @@
+{
+  "name": "dashboard-admin-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pruebas end-to-end (Selenium WebDriver + Mocha) de Dashboard Admin V2",
+  "scripts": {
+    "test": "mocha",
+    "test:humo": "mocha --grep @humo",
+    "test:visible": "HEADLESS=false mocha",
+    "test:informe": "mocha --reporter mochawesome --reporter-options reportDir=informes,reportFilename=informe-e2e,quiet=true"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "mocha": "^8.1.3",
+    "mochawesome": "^8.1.1",
+    "selenium-webdriver": "^4.27.0"
+  }
+}

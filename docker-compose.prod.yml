@@ -28,6 +28,7 @@ services:
     restart: unless-stopped
     env_file: .env.prod
     environment:
+      RATE_LIMIT_AUTH: "1000"
       NODE_ENV: production
       PORT: "4000"
       TZ: ${SCHEDULER_TZ:-America/Santiago}
